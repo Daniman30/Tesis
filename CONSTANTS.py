@@ -1,0 +1,6 @@
+RUTA_VIDEO = r"D:/UNI/Tesis/DB/video"
+RUTA_AUDIO = r"D:/UNI/Tesis/DB/audio"
+RUTA_TEXTO = r"D:/UNI/Tesis/DB/text"
+RUTA_IMAGE = r"D:/UNI/Tesis/DB/image"
+RUTA_DB = r"D:/UNI/Tesis/DB"
+HUGGINGFACE_TOKEN = "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"
