@@ -1,2 +1,4 @@
 /blip-base
 /python3.10
+__pycache__/
+*.pyc

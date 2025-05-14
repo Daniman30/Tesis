@@ -10,6 +10,7 @@ from video2text.frame_extraction import frame_extraction
 
 def main():
     name = elegir_mkv(RUTA_VIDEO)
+    if name == '': return
 
     start = time()
 

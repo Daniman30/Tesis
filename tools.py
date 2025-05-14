@@ -13,6 +13,7 @@ def elegir_mkv(ruta):
     print("Archivos .mkv encontrados:")
     for i, nombre in enumerate(archivos_mkv):
         print(f"{i + 1}. {nombre}")
+    print("0. Para salir")
 
     # Solicitar selección
     while True:
@@ -22,6 +23,8 @@ def elegir_mkv(ruta):
                 name = archivos_mkv[opcion - 1]
                 print(f"Seleccionaste: {name}")
                 return name
+            elif opcion == 0:
+                return ''
             else:
                 print("Número fuera de rango. Intenta de nuevo.")
         except ValueError:
