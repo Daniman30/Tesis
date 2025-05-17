@@ -4,7 +4,6 @@ import csv
 from scenedetect.detectors import ContentDetector
 from scenedetect.scene_manager import save_images
 from scenedetect import VideoManager, SceneManager
-from scenedetect.frame_timecode import FrameTimecode
 from skimage.metrics import structural_similarity as ssim
 from CONSTANTS import RUTA_VIDEO, RUTA_IMAGE, RUTA_TEXTO
 

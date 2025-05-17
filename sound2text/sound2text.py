@@ -1,19 +1,15 @@
 import os
 import time
+import shutil
 import ffmpeg
 import whisper
-import shutil
 import librosa
-import requests
 import numpy as np
-import soundfile as sf
-import tensorflow as tf
-import subprocess as sp
-import tensorflow_hub as hub
 from moviepy import *
+import subprocess as sp
 from pathlib import Path
+import tensorflow_hub as hub
 from pyannote.audio import Pipeline
-from spleeter.separator import Separator
 from CONSTANTS import RUTA_AUDIO, RUTA_VIDEO, RUTA_TEXTO, HUGGINGFACE_TOKEN
 
 # os.environ["CUDA_VISIBLE_DEVICES"] = "-1"  # Desactiva GPU
