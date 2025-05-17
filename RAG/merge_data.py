@@ -67,10 +67,7 @@ def extract_subtitles_in_range(subs, start_time, end_time):
 def guess_timestamps(scene_index, duration_seconds=120):
     start_sec = scene_index * duration_seconds
     end_sec = start_sec + duration_seconds
-
-    def to_time_str(sec):
-        return str(timedelta(seconds=sec))
-    return to_time_str(start_sec), to_time_str(end_sec)
+    return str(timedelta(seconds=start_sec)), str(timedelta(seconds=end_sec))
 
 
 def read_all_visual_descriptions(base_path):
@@ -141,7 +138,6 @@ def remove_consecutive_duplicates(lines):
 
 
 def create_movie_json(path, movie_name):
-
     output = {
         "movie_name": movie_name,
         "metadata": {},
@@ -210,14 +206,3 @@ def merge_data(movie_name):
 # if __name__ == "__main__":
 #     movie_name = "Zootopia"
 #     merge_data(movie_name)
-
-
-#! VER QUE PASA CON VISUAL DESCRIPTION
-#! VER QUE PASA CON VISUAL DESCRIPTION
-#! VER QUE PASA CON VISUAL DESCRIPTION
-#! VER QUE PASA CON VISUAL DESCRIPTION
-#! VER QUE PASA CON VISUAL DESCRIPTION
-#! VER QUE PASA CON VISUAL DESCRIPTION
-#! VER QUE PASA CON VISUAL DESCRIPTION
-#! VER QUE PASA CON VISUAL DESCRIPTION
-#! VER QUE PASA CON VISUAL DESCRIPTION

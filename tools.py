@@ -2,6 +2,21 @@ import os
 
 
 def elegir_mkv(ruta):
+    """
+    Muestra una lista numerada de archivos .mkv en la ruta especificada y permite al usuario seleccionar uno.
+
+    Parámetros:
+    ----------
+    ruta : str
+        Ruta al directorio donde se buscarán los archivos con extensión .mkv.
+
+    Retorna:
+    -------
+    str or None
+        El nombre del archivo .mkv (sin extensión) seleccionado por el usuario.
+        Retorna una cadena vacía si el usuario elige salir.
+        Retorna None si no se encontraron archivos .mkv en la ruta.
+    """
     # Obtener todos los archivos .mkv
     archivos_mkv = [f[:-4] for f in os.listdir(ruta) if f.endswith('.mkv')]
 
@@ -32,6 +47,20 @@ def elegir_mkv(ruta):
 
 
 def segundos_a_hora(segundos):
+    """
+    Convierte una cantidad de segundos en una cadena con formato de hora (HH:MM:SS).
+
+    Parámetros:
+    ----------
+    segundos : int
+        Cantidad total de segundos a convertir.
+
+    Retorna:
+    -------
+    str
+        Cadena con el tiempo formateado en horas, minutos y segundos (HH:MM:SS),
+        donde cada unidad está representada con dos dígitos.
+    """
     horas = segundos // 3600
     minutos = (segundos % 3600) // 60
     segundos_restantes = segundos % 60

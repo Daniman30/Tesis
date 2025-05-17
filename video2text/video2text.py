@@ -1,8 +1,6 @@
 import os
 import cv2
 import csv
-import time
-import tqdm
 import torch
 import requests
 from PIL import Image
@@ -13,7 +11,33 @@ from sound2text.sound2text import count_files_by_format
 from transformers import BlipProcessor, BlipForConditionalGeneration, Blip2Processor, Blip2ForConditionalGeneration
 
 
-def opencv(video_name):
+def opencv(video_name, frames_por_segundo=1):
+    """
+    Extrae y guarda un frame por segundo de un video usando OpenCV.
+
+    Parámetros:
+    ----------
+    video_name : str
+        Nombre del archivo de video (incluyendo la extensión) ubicado en la ruta definida por RUTA_VIDEO.
+
+    frames_por_segundo : int, opcional (por defecto = 1)
+        Cantidad de frames que se van a extraer por cada segundo del video.
+
+    Funcionalidad:
+    -------------
+    - Carga el video desde la ruta especificada.
+    - Verifica que el archivo se pueda abrir correctamente.
+    - Obtiene los fotogramas por segundo (FPS) del video.
+    - Extrae un frame por segundo (puede ajustarse cambiando 'frames_por_segundo').
+    - Guarda cada frame extraído como una imagen `.jpg` en el directorio definido por RUTA_IMAGE.
+    - Crea el directorio de salida si no existe.
+
+    Salida:
+    ------
+    - Muestra en consola los FPS del video.
+    - Imprime mensajes por cada frame guardado o si ocurre un error.
+    - Al finalizar, informa cuántos frames se procesaron y cuántos se guardaron.
+    """
     video_path = os.path.join(RUTA_VIDEO, video_name)
 
     # Asegurar que el directorio de salida existe
@@ -28,9 +52,6 @@ def opencv(video_name):
     # Obtener los FPS del video
     fps = cap.get(cv2.CAP_PROP_FPS)
     print(f"FPS del video: {fps}")
-
-    # Cuántos frames quieres por segundo (ajusta este valor)
-    frames_por_segundo = 1
 
     # Calcular el intervalo de frames a capturar
     intervalo = int(round(fps / frames_por_segundo)
@@ -62,6 +83,40 @@ def opencv(video_name):
 
 
 def image_description(image_path, output_path):
+    """
+    Genera descripciones automáticas para imágenes utilizando el modelo BLIP y actualiza un archivo CSV con dicha información.
+
+    Parámetros:
+    -----------
+    image_path : str
+        Ruta al directorio que contiene las imágenes (formato .jpg) a procesar.
+
+    output_path : str
+        Ruta al directorio donde se encuentra el archivo `scene_frames.csv` con los nombres de los frames y timestamps,
+        y donde se guardarán los resultados (descripciones generadas).
+
+    Funcionalidad:
+    --------------
+    - Verifica si el modelo BLIP ya está descargado localmente; si no, lo descarga automáticamente.
+    - Carga el modelo y su procesador en GPU o CPU, según disponibilidad.
+    - Lee un archivo `scene_frames.csv` que debe contener al menos dos columnas: `frame_name` y `timestamp`.
+    - Para cada imagen listada:
+        - Verifica que el archivo exista.
+        - Procesa la imagen y genera una descripción textual usando el modelo.
+        - Agrega la descripción como una tercera columna.
+    - Guarda el CSV actualizado con la columna adicional `description`.
+
+    Resultados:
+    -----------
+    - Un nuevo archivo CSV (`scene_frames.csv`) con las descripciones generadas para cada imagen.
+    - Mensajes informativos impresos en consola sobre el progreso del procesamiento.
+
+    Notas:
+    ------
+    - El modelo utilizado es `Salesforce/blip-image-captioning-base`.
+    - La función depende de la existencia de los archivos e imágenes especificados.
+    - Requiere conexión a internet para la descarga inicial del modelo (si no está presente).
+    """
     # Ruta local donde guardar el modelo
     MODEL_DIR = Path("./blip-base")
 
@@ -143,6 +198,41 @@ def image_description(image_path, output_path):
 
 
 def describe_image_with_huggingface_api(image_path, hf_token):
+    """
+    Genera una descripción automática de una imagen utilizando la API de Hugging Face con el modelo BLIP.
+
+    Parámetros:
+    -----------
+    image_path : str
+        Ruta al archivo de imagen (preferiblemente en formato JPG o PNG) que se desea describir.
+
+    hf_token : str
+        Token de autenticación personal de Hugging Face con permisos para acceder a la API de inferencia.
+
+    Funcionalidad:
+    --------------
+    - Lee la imagen especificada como un archivo binario.
+    - Envía la imagen al modelo `Salesforce/blip-image-captioning-base` alojado en Hugging Face mediante una petición POST.
+    - Procesa la respuesta y extrae el texto generado si está disponible.
+
+    Retorna:
+    --------
+    str or None:
+        - Cadena con la descripción generada de la imagen si la solicitud fue exitosa y la respuesta fue válida.
+        - None si hubo un error en la solicitud o si la respuesta no contiene el texto esperado.
+
+    Notas:
+    ------
+    - Es necesario tener conexión a internet para acceder a la API.
+    - La función imprime mensajes en consola para informar sobre el progreso y posibles errores.
+    - El token (`hf_token`) debe tener permisos para usar el modelo `Salesforce/blip-image-captioning-base`.
+
+    Ejemplo de uso:
+    ---------------
+    >>> descripcion = describe_image_with_huggingface_api("frame_0001.jpg", "hf_xxxxxxxxxxxxxxxxxx")
+    >>> print(descripcion)
+    "A dog sitting on a couch in a living room."
+    """
     # Endpoint del modelo de captioning de imágenes
     api_url = "https://api-inference.huggingface.co/models/Salesforce/blip-image-captioning-base"
 
@@ -172,6 +262,32 @@ def describe_image_with_huggingface_api(image_path, hf_token):
 
 
 def video2text(video_name):
+    """
+    Genera descripciones textuales de las escenas de un video a partir de sus imágenes.
+
+    Parámetros:
+    -----------
+    video_name : str
+        Nombre del archivo de video (sin la ruta) del cual se desea generar descripciones.
+
+    Funcionalidad:
+    --------------
+    - Define la ruta donde se encuentran las imágenes del video segmentado por escenas (`RUTA_IMAGE/{video_name}_by_scene`).
+    - Define la ruta de salida donde se guardarán las descripciones generadas (`RUTA_TEXTO/{video_name}`).
+    - Llama a la función `image_description` para generar descripciones de cada imagen de escena utilizando el modelo BLIP de forma local.
+    - (Opcional) Se puede cambiar el método de descripción usando la API de Hugging Face comentando/descomentando líneas relevantes.
+
+    Notas:
+    ------
+    - Se espera que las imágenes del video ya hayan sido extraídas previamente y estén organizadas en carpetas por escena.
+    - Las rutas `RUTA_IMAGE` y `RUTA_TEXTO` deben estar definidas globalmente en el entorno.
+    - El modelo BLIP debe estar disponible localmente o será descargado al momento de la ejecución de `image_description`.
+
+    Ejemplo de uso:
+    ---------------
+    >>> video2text("Zootopia")
+    # Esto generará un archivo `descripciones.txt` y un CSV con las descripciones para cada escena del video.
+    """
     # opencv(video_name)
     path = f"{RUTA_IMAGE}/{video_name}_by_scene"
     output_path = f"{RUTA_TEXTO}/{video_name}"
