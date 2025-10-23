@@ -1,3 +1,18 @@
+# Generación Aumentada por Recuperación sobre Películas
+## Autor: Lic. Daniel Polanco Pérez
+## Tutor: Dr. C. Yudivián Almeida Cruz
+### Tesis en opción al grado de: Licenciado en Ciencia de la Computación
+### Línea de Investigación: Generación Aumentada por Recuperación
+### Grupo de Investigación: Inteligencia Artificial
+
+**Universidad de La Habana**
+
+**Facultad de Matemática y Computación**
+
+**La Habana, Cuba**
+
+**Junio, 2025**
+
 # Abstract
 
 This research develops an intelligent system capable of analyzing films and answering complex questions about their content, integrating all the elements that compose them: dialogue, ambient sounds, music, and visual sequences. The system transforms this audiovisual information into detailed textual descriptions that capture not only what is said, but also what happens on and off screen. These descriptions are organized in such a way that they allow users to quickly find relevant information when they make a query, whether about characters, specific scenes, or subtle narrative elements.
@@ -5,8 +20,6 @@ This research develops an intelligent system capable of analyzing films and answ
 The main contribution of this work is to show how artificial intelligence can understand and process cinematic language in all its complexity, overcoming the limitations of previous systems that only considered dialogue or basic metadata. The results show that this approach allows for more sophisticated questions about films to be answered. This advance brings us closer to the possibility of interacting with audiovisual content as naturally as we do today with textual information.
 
 **Keywords:** Retrieval-Augmented Generation (RAG), multimodality, audiovisual processing, language models, artificial intelligence, movies.
-
----
 
 # Resumen
 
