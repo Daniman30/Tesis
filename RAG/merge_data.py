@@ -3,11 +3,7 @@ import csv
 import json
 from pathlib import Path
 from datetime import timedelta, datetime
-from CONSTANTS import RUTA_TEXTO, RUTA_DB
-
-
-def read_srt_file(file_path):
-    return read_text_file(file_path)
+from CONSTANTS import RUTA_TEXTO, DURATION_SECONDS
 
 
 def read_text_file(file_path):
@@ -64,22 +60,13 @@ def extract_subtitles_in_range(subs, start_time, end_time):
     )
 
 
-def guess_timestamps(scene_index, duration_seconds=120):
-    start_sec = scene_index * duration_seconds
-    end_sec = start_sec + duration_seconds
+def guess_timestamps(scene_index):
+    start_sec = scene_index * DURATION_SECONDS
+    end_sec = start_sec + DURATION_SECONDS
     return str(timedelta(seconds=start_sec)), str(timedelta(seconds=end_sec))
 
 
-def read_all_visual_descriptions(base_path):
-    path = Path(base_path) / "scene_frames.txt"
-    if path.exists():
-        content = read_text_file(path)
-        # Dividir por líneas o bloques dobles si hay separación por párrafos
-        return [desc.strip() for desc in re.split(r'\n\s*\n', content) if desc.strip()]
-    return []
-
-
-def read_visual_descriptions_from_csv(csv_path, duration_seconds=120):
+def read_visual_descriptions_from_csv(csv_path):
     descriptions_by_scene = {}
     if Path(csv_path).exists():
         with open(csv_path, encoding="utf-8") as f:
@@ -88,7 +75,7 @@ def read_visual_descriptions_from_csv(csv_path, duration_seconds=120):
                 timestamp = row["timestamp"].replace(',', '.')
                 description = row["description"].strip()
                 time_sec = time_to_seconds(timestamp)
-                scene_index = int(time_sec // duration_seconds)
+                scene_index = int(time_sec // DURATION_SECONDS)
                 descriptions_by_scene.setdefault(
                     scene_index, []).append(description)
     return descriptions_by_scene
@@ -198,7 +185,7 @@ def merge_data(movie_name):
     path = f"{RUTA_TEXTO}/{movie_name}"
     data = create_movie_json(path, movie_name)
 
-    output_file = f"{RUTA_DB}/RAG.json"
+    output_file = f"{RUTA_TEXTO}/{movie_name}/{movie_name}.json"
     with open(output_file, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=4, ensure_ascii=False)
     print(f"✅ Archivo guardado: {output_file}")

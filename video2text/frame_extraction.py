@@ -237,7 +237,7 @@ def extract_scenes(name, video_path, output_folder, csv_folder, threshold=30.0):
     --------
     >>> extract_scenes("video1", "videos/video1.mp4", "output/images", "output/csv")
     12 escenas detectadas.
-    """
+    """    
     # Crear el gestor de video
     video_manager = VideoManager([video_path])
     scene_manager = SceneManager()
@@ -277,6 +277,54 @@ def extract_scenes(name, video_path, output_folder, csv_folder, threshold=30.0):
     video_manager.release()
 
 
+def one_fps(name, video_path, output_folder, csv_folder):
+    cap = cv2.VideoCapture(video_path)
+    count = 0
+    saved_count = 0  # Contador consecutivo para los nombres de los archivos
+
+    # Crear carpeta de salida si no existe
+    os.makedirs(output_folder, exist_ok=True)
+    os.makedirs(csv_folder, exist_ok=True)
+
+    # Ruta del archivo CSV
+    csv_path = os.path.join(csv_folder, 'scene_frames.csv')
+
+    with open(csv_path, mode='w', newline='') as csvfile:
+        writer = csv.writer(csvfile)
+        writer.writerow(['frame_name', 'timestamp'])
+
+        while cap.isOpened():
+            ret, frame = cap.read()
+            if not ret:
+                break
+
+            # Guardar un frame cada 24 fotogramas
+            if count % 24 == 0:
+                # Obtener el tiempo actual en milisegundos
+                millisec = cap.get(cv2.CAP_PROP_POS_MSEC)
+                seconds = millisec / 1000
+                hours = int(seconds // 3600)
+                minutes = int((seconds % 3600) // 60)
+                secs = int(seconds % 60)
+                msecs = int(millisec % 1000)
+                timestamp_str = f"{hours:02d}:{minutes:02d}:{secs:02d}.{msecs:03d}"
+
+                # Guardar imagen
+                frame_filename = os.path.join(output_folder, f"{name}-Scene-{saved_count:04d}-01.jpg")
+                cv2.imwrite(frame_filename, frame)
+
+                # Escribir en CSV
+                writer.writerow([f"{name}-Scene-{saved_count:04d}-01.jpg", timestamp_str])
+
+                saved_count += 1  # Incrementa solo cuando guardas un frame
+
+            count += 1
+
+    print(f"Total de frames leídos: {count}")
+    print(f"Total de frames guardados: {saved_count}")
+    cap.release()
+
+
 def frame_extraction(name):
     """
     Extrae frames significativos o escenas de un video dado, guardando imágenes y metadatos asociados.
@@ -298,8 +346,9 @@ def frame_extraction(name):
     # extract_better_frames(video_path, output_folder, ssim_threshold=0.8, blur_threshold=100)
 
     # threshold modificable (20 para mas detalle, 40 para menos frames)
-    extract_scenes(name, video_path, output_folder, csv_folder, threshold=30.0)
+    # extract_scenes(name, video_path, output_folder, csv_folder, threshold=30.0)
+    one_fps(name, video_path, output_folder, csv_folder)
 
-# if __name__ == "main":
-#     name = "Zootopia"
-#     frame_extraction(name)
+if __name__ == "main":
+    name = "Zootopia"
+    frame_extraction(name)

@@ -73,6 +73,10 @@ def divide_audio(ruta_archivo: str, duracion_segmento: int):
     if not os.path.isfile(ruta_archivo):
         print("Archivo no encontrado:", ruta_archivo)
         return
+    
+    if os.path.getsize(ruta_archivo) < 1048576: 
+        print(f"[ERROR] Archivo muy pequeño o corrupto: {ruta_archivo}")
+        return 
 
     # Obtener nombre base del archivo sin extensión
     nombre_base = os.path.splitext(os.path.basename(ruta_archivo))[0]
@@ -137,7 +141,7 @@ def separate_music_voice(audio_file):
     os.makedirs(carpeta_salida, exist_ok=True)
 
     command = [
-        "demucs",
+        "py", "-m", "demucs",
         "--two-stems", "vocals",  # solo separa voz vs resto
         "-o", str(carpeta_salida),
         audio_file
@@ -466,16 +470,24 @@ def transcribe_voice(name, split=True):
         count = count_files_by_format(f"{RUTA_AUDIO}/{name}", "mkv")
         for i in range(count):
             num = f"{i:03}"
+            print(f"Dialogue transcription {name}_{num}")
             audio_file = f"{RUTA_AUDIO}/{name}/{name}_{num}/vocals.wav"
+            output_txt = f"{RUTA_TEXTO}/{name}/{name}_{num}/dialogue_transcription.txt"
+            
+            # Comprobar si el archivo ya existe
+            if os.path.exists(output_txt):
+                print(f"Archivo ya existente, se salta: {output_txt}")
+                continue
+            
             resultado = transcribe_and_diarize(audio_file)
 
             # Guardar en archivo
-            output_txt = f"{RUTA_TEXTO}/{name}/{name}_{num}/dialogue_transcription.txt"
             save_transcription(resultado, output_txt)
 
         print(f"\n✅ Transcripciones guardadas en: {RUTA_TEXTO}/{name}")
         return
 
+    # else
     audio_file = f"{RUTA_AUDIO}/{name}/vocals.wav"
     resultado = transcribe_and_diarize(audio_file)
 
